@@ -377,14 +377,14 @@
             const mobileFileInput = document.getElementById('mobile-file-input');
             const mobileConnectionStatus = document.getElementById('mobile-connection-status');
             const mobileStatusText = document.getElementById('mobile-status-text');
-            const generatePdfBtn = document.getElementById('generate-pdf-btn'); // NOVO: Captura o botão PDF
+            const generatePdfBtn = document.getElementById('generate-pdf-btn');
 
             let peer = null;
             let connection = null;
             const urlParams = new URLSearchParams(window.location.search);
             const connectToId = urlParams.get('connect');
 
-            // NOVO: Variável para armazenar os dados do cupom para o PDF
+            //Variável para armazenar os dados do cupom para o PDF
             let parsedReceiptData = null;
 
             if (connectToId) {
@@ -404,9 +404,9 @@
                     updateStatus('connecting', 'Iniciando conexão...');
 
                     peer = new Peer();
-
+                    const serverIp = window.location.hostname;
                     peer.on('open', (id) => {
-                        const url = `http://192.168.18.22:8000?connect=${id}`;
+                        const url = `http://${serverIp}:8000?connect=${id}`;
                         QRCode.toCanvas(document.getElementById('qrcode'), url, { width: 220 });
                         updateStatus('connecting', 'Aguardando conexão do celular...');
                     });
@@ -541,7 +541,6 @@
 
                     console.log(result.text)
 
-                    // ATUALIZAÇÃO: Salva os dados na variável global
                     parsedReceiptData = parseReceiptText(result.text);
 
                     updateResults(parsedReceiptData);
@@ -569,23 +568,20 @@
                     cnpj: /(\d{2}\.?\d{3}\.?\d{3}\/?\d{4}-?\d{2})/i,
                     address: /^.*\n([\s\S]*?)\n.*CNPJ/i,
 
-                    // CORREÇÃO 1: Adicionado parênteses `(\d+)` para capturar o código do produto.
                     itemLine: /^\d+\s+(\d+)\s+(.*?)\n(\d*)\s?UN\s*X\s*([\d,.]+)\n([\d,.]+)$/gm,
 
                     totalValue: /(?:VALOR\s*TOTAL|TOTAL\s*R\$)\s*[\s\S]*?([\d,.]+)/i,
 
-                    // CORREÇÃO 4: Regex mais específico para evitar capturar o valor total por engano.
                     totalItems: /Qtde\.\s*Total\s*Itens\s*.*?(\d+)/i,
 
                     operator: /Operador:\s*\d+-(.*)/i,
 
-                    // CORREÇÃO 3: Regex agora aceita "Cartao" com ou sem "ã", e "Credito" com ou sem "é".
                     paymentType: /(Cart(a|ã)o de Cr(e|é)dito|DINHEIRO|DEBITO)/i
                 };
 
                 // --- Extração das Informações ---
 
-                // CORREÇÃO 2: Lógica para formatar o CNPJ
+                // Lógica para formatar o CNPJ
                 let cnpj = extract(patterns.cnpj, text) || "Não encontrado";
                 if (cnpj && cnpj.length >= 14) {
                     const digits = cnpj.replace(/\D/g, ''); // Remove tudo que não for dígito
@@ -605,7 +601,6 @@
                 let match;
                 while ((match = patterns.itemLine.exec(text)) !== null) {
                     products.push({
-                        // CORREÇÃO 1: Os grupos de captura mudaram de posição. Agora o código é match[1].
                         code: match[1].trim(),
                         description: match[2].trim(),
                         quantity: match[3].trim() || '1',
@@ -684,7 +679,6 @@
                 return new File([u8arr], filename, { type: mime });
             }
 
-            // --- NOVA FUNÇÃO PARA GERAR E BAIXAR O PDF ---
             generatePdfBtn.addEventListener('click', async () => {
                 if (!parsedReceiptData) {
                     alert('Não há dados de cupom para gerar o PDF.');

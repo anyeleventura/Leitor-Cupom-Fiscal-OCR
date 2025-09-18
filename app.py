@@ -2,9 +2,9 @@ import os
 from flask import Flask, render_template, request, jsonify, make_response
 from google.cloud import vision
 from dotenv import load_dotenv
-from fpdf import FPDF # Importação da biblioteca para gerar PDF
+from fpdf import FPDF
 
-# Carrega as variáveis de ambiente (nossa chave)
+# Carrega as variáveis de ambiente
 load_dotenv()
 
 # Define o caminho para o arquivo de credenciais
@@ -92,7 +92,6 @@ def process_image():
     else:
         return jsonify({'text': ''})
 
-# --- NOVA ROTA PARA GERAR O PDF ---
 @app.route('/generate-pdf', methods=['POST'])
 def generate_pdf():
     """Recebe os dados do cupom em JSON e gera um PDF."""
