@@ -1,0 +1,4 @@
+Flask
+google-cloud-vision
+python-dotenv
+fpdf2
